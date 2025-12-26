@@ -695,19 +695,45 @@
             forestGrid.innerHTML = ''; 
 
             userRecords.forEach((record, index) => {
+                // 1. 计算坐标 (假设你已经有了计算 x, y 的逻辑，比如根据日期)
+                // 这里使用你原有的坐标逻辑，示例：
+                const x = 50 + (index % 10) * (canvas.width / 11);
+                const y = 80 + Math.floor(index / 10) * 100;
+            
                 let icon = '';
                 let color = '';
+            
+                // 2. 判断类型并设置样式
+                if (record.type === '心境升华') {
+                    // 升华之树：最特殊的待遇
+                    ctx.fillStyle = 'var(--cinnabar)'; // 朱砂红
+                    drawRefinedTree(ctx, x, y);        // 调用特殊的画树函数
+                    return; // 跳过后面的通用逻辑
+                } 
                 
+                // 通用逻辑：积极、沉闷（原消极）、平静
                 if (record.type.includes('积极')) {
                     icon = record.watered ? '🌲' : '🌳'; 
                     color = record.watered ? '#2E8B57' : 'var(--bamboo)';
-                } else if (record.type.includes('消极')) {
+                } else if (record.type.includes('沉闷') || record.type.includes('不悦') || record.type.includes('消极')) {
                     icon = record.watered ? '🌱' : '🍂'; 
                     color = record.watered ? '#6495ED' : '#9F3A3A';
                 } else {
-                    icon = '💧';
-                    color = '#6495ED';
+                    // 平静安稳或其他
+                    icon = record.watered ? '🌿' : '🍃';
+                    color = '#B8860B'; // 赭石色
                 }
+
+                // 3. 执行绘制 (Canvas 绘制文字/图标)
+                ctx.fillStyle = color;
+                ctx.font = "40px serif"; // 设置图标大小
+                ctx.textAlign = "center";
+                ctx.fillText(icon, x, y); 
+                
+                // 如果你有自定义的画树函数 drawNormalTree，也可以这样：
+                // ctx.fillStyle = color;
+                // drawNormalTree(ctx, x, y);
+            });
 
                 const plot = document.createElement('div');
                 plot.className = 'tree-plot';
@@ -784,31 +810,72 @@
             currentRecordIndex = -1;
         }
         
-        function waterTree() {
-            if (currentRecordIndex === -1 || userRecords[currentRecordIndex].watered) return;
-            
-            userRecords[currentRecordIndex].watered = true; 
-            saveRecords(); 
-
-            document.getElementById('water-btn').innerText = "已浇水 (不再重复)";
-            document.getElementById('water-btn').disabled = true;
-
-            const type = userRecords[currentRecordIndex].type;
-            let message = '';
-            if (type.includes('积极')) {
-                message = "👏 成功强化！这颗积极树吸收了古策的养分，变得更茂盛！";
-            } else if (type.includes('消极')) {
-                message = "✨ 成功转化！消极心绪已被古策治愈，树木开始向着希望生长！";
-            } else {
-                message = "💧 浇水完成。";
+        async function waterRecord() {
+            // 1. 获取当前正在查看的记录
+            const record = currentDayRecords[currentRecordIndex];
+            if (record.watered) {
+                alert("这株心绪已得甘露滋润，无需重复浇水。");
+                return;
             }
-            alert(message);
-            
-            setTimeout(() => {
-                closeModal();
-                if (document.getElementById('forest-view').classList.contains('active')) renderForest();
-                if (document.getElementById('calendar-view').classList.contains('active')) renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-            }, 500);
+
+            // 2. 弹出感悟输入框
+            const reflection = prompt(`【回想当时】: ${record.event}\n\n此时此刻，你是否有新的感悟或想对自己说的话？`);
+    
+            if (reflection === null) return; // 用户点取消
+            if (reflection.trim() === "") {
+                alert("请写下些许感悟，甘露方能生效。");
+                return;
+            }
+        
+            const waterBtn = document.getElementById('water-btn');
+            waterBtn.innerText = "正在升华...";
+            waterBtn.disabled = true;
+        
+            try {
+                // 3. 构造组合输入发给 AI
+                const combinedInput = `【原事件】：${record.event}。  【新感悟】：${reflection}`;
+                
+                const response = await fetch('/api/generate-guyue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        emotion_score: record.score, 
+                        event: combinedInput
+                    })
+                });
+
+                const data = await response.json();
+        
+                // 4. 更新原记录状态
+                        record.watered = true;
+
+                // 5. 生成一棵全新的“升华树”记录
+                const upgradedRecord = {
+                    date: record.date, // 保持同一天，但在日历里会多出一项
+                    event: `【升华感悟】${reflection}`,
+                    score: Math.min(record.score + 20, 100), // 默认升华后心情好转
+                    type: "心境升华",
+                    guyan: data.guyan,
+                    guce: data.guce,
+                    watered: true 
+                };
+        
+                userRecords.push(upgradedRecord);
+                saveRecords(); // 存入本地或云端
+        
+                alert("浇水成功！感悟已汇聚成新的古言。去森林看看那棵代表“升华”的新树吧。");
+                
+                // 刷新界面
+                renderModalContent();
+                if (typeof renderForest === 'function') renderForest();
+        
+            } catch (error) {
+                console.error("升华过程出错:", error);
+                alert("思绪断了，请检查网络后重试。");
+            } finally {
+                waterBtn.innerText = "💧 浇水感悟";
+                waterBtn.disabled = false;
+            }
         }
 
         // ========== E. DeepSeek AI 调用 (通过后端代理) ==========
@@ -888,6 +955,7 @@
 </body>
 
 </html>
+
 
 
 
