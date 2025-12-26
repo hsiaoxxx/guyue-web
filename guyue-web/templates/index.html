@@ -602,21 +602,22 @@
             moodLabel.innerText = `${label} ${icon} (${val})`;
         });
         
-        function switchView(viewId) {
-            // 1. 移除所有页面的 active 类
-            document.querySelectorAll('.view').forEach(v => {
-                v.classList.remove('active');
-            });
+         function switchView(viewId) {
+            views.forEach(view => view.classList.remove('active'));
+            navItems.forEach(item => item.classList.remove('active'));
 
-            // 2. 给目标页面添加 active 类
-            const target = document.getElementById(viewId + '-view');
-            if (target) {
-                target.classList.add('active');
-                // 切换页面后自动回到顶部
-                target.scrollTop = 0;
+            const targetView = document.getElementById(`${viewId}-view`);
+            targetView.classList.add('active');
+            
+            const targetNav = document.getElementById(`nav-${viewId}`);
+            if (targetNav) targetNav.classList.add('active');
+            
+            if (viewId === 'forest') {
+                renderForest();
+            } else if (viewId === 'calendar') {
+                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
             }
         }
-
         // ========== C. 日历回顾功能实现 ==========
         
         function getDaysInMonth(year, month) {
@@ -880,6 +881,7 @@
 </body>
 
 </html>
+
 
 
 
