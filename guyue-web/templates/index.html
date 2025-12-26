@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古曰 - 跨时空的心灵治愈</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========== 1. 全局字体与变量定义 ========== */
+        :root {
+            /* 核心色盘 */
+            --bg-paper: rgba(255, 253, 248, 0.85); /* 宣纸白（半透明） */
+            --bg-sidebar: rgba(248, 247, 243, 0.6); /* 侧边栏（更透） */
+            --ink-black: #2C2C2C;       /* 徽墨 */
+            --ink-light: #595959;       /* 淡墨 */
+            --cinnabar: #A83333;        /* 朱砂红 (用于印章/按钮) */
+            --bamboo: #4E6E52;          /* 竹青色 (用于肯定/生机) */
+            --ochre: #B8860B;           /* 赭石色 (用于强调) */
+            
+            /* 阴影与边框 */
+            --border-ink: rgba(44, 44, 44, 0.08);
+            --shadow-float: 0 10px 40px rgba(0, 0, 0, 0.15); /* 悬浮阴影 */
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);   /* 卡片阴影 */
+            --glass-blur: blur(12px);    /* 磨砂玻璃模糊度 */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        /* ========== 2. 沉浸式背景 ========== */
+        body {
+            font-family: 'Noto Serif SC', 'SimSun', serif; /* 优先宋体 */
+            color: var(--ink-black);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            
+            /* 背景设置：优先使用图片，若无图片则显示米色渐变 */
+            background-color: #EFEBE4; 
+            background-image: url('/static/background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* 背景固定，营造视差感 */
+            
+            /* 叠加一层淡淡的雾气遮罩 */
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(239, 235, 228, 0.2); 
+            z-index: -1;
+        }
+
+        /* ========== 3. 主容器 (玻璃拟态 + 宣纸) ========== */
+        .app-container {
+            width: 1100px; 
+            height: 750px; 
+            max-width: 95vw; 
+            max-height: 90vh;
+            
+            background-color: var(--bg-paper);
+            backdrop-filter: var(--glass-blur); /* 核心：磨砂玻璃效果 */
+            -webkit-backdrop-filter: var(--glass-blur);
+            
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            
+            display: flex; 
+            overflow: hidden; 
+            position: relative;
+            animation: floatUp 0.8s ease-out; /* 入场动画 */
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 4. 侧边栏 (雅致导航) ========== */
+        .sidebar { 
+            width: 200px; 
+            padding: 40px 0; 
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-ink); 
+            text-align: center;
+            display: flex; flex-direction: column;
+            z-index: 2;
+        }
+        
+        .logo { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            margin-bottom: 50px; 
+            letter-spacing: 4px; 
+            color: var(--ink-black);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+        }
+        
+        .nav-item { 
+            position: relative;
+            padding: 18px 0; 
+            cursor: pointer; 
+            font-size: 1.05rem; 
+            color: var(--ink-light);
+            transition: all 0.4s ease;
+            letter-spacing: 1px;
+        }
+        
+        /* 导航悬停与激活状态 */
+        .nav-item::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background-color: var(--cinnabar);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-item:hover { color: var(--cinnabar); background-color: rgba(255,255,255,0.3); }
+        
+        .nav-item.active {
+            color: var(--ink-black);
+            font-weight: 600;
+            background-color: rgba(255,255,255,0.5);
+        }
+        .nav-item.active::before { transform: scaleY(1); }
+        
+        .user-info { 
+            margin-top: auto; 
+            padding: 20px; 
+            font-size: 0.85rem; 
+            color: var(--ink-light); 
+            border-top: 1px solid var(--border-ink);
+        }
+
+        /* ========== 5. 内容区域 ========== */
+        .content-area { 
+            flex: 1; 
+            padding: 50px; 
+            position: relative; 
+            overflow: hidden; 
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiIG9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+') repeat; /* 极淡的噪点纹理增加纸张感 */
+        }
+        
+        .view { 
+            width: 100%; height: 100%; 
+            position: absolute; top: 0; left: 0; padding: 50px;
+            opacity: 0; transform: translateY(10px); pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
+        
+        .view.active { 
+            opacity: 1; transform: translateY(0); pointer-events: auto; 
+            position: relative;
+        }
+        
+        .view h2 { 
+            font-size: 1.8rem; 
+            margin-bottom: 30px; 
+            font-weight: 600;
+            color: var(--ink-black);
+            border-left: 5px solid var(--cinnabar);
+            padding-left: 15px;
+            line-height: 1.2;
+        }
+
+        /* ========== 6. 输入区域与表单 ========== */
+        .input-box {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+            margin: 0 auto;
+            max-width: 650px;
+            width: 100%;
+            backdrop-filter: blur(5px);
+        }
+
+        textarea { 
+            width: 100%; height: 140px; 
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(0,0,0,0.1); 
+            padding: 15px; 
+            font-family: inherit; font-size: 1.1rem; line-height: 1.8;
+            resize: none; margin-top: 10px;
+            transition: border-color 0.3s;
+            background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 100% 2.5rem; /* 信纸横线效果 */
+        }
+        textarea:focus { border-bottom-color: var(--bamboo); }
+        textarea::placeholder { color: #aaa; font-style: italic; }
+
+        /* ========== 7. 情绪滑块 (水墨渐变) ========== */
+        .emotion-controls { margin: 30px 0; text-align: center; }
+        
+        .slider-wrapper { 
+            display: flex; align-items: center; gap: 15px; margin-top: 15px; 
+            font-weight: 600; color: var(--ink-light);
+        }
+        
+        input[type=range] { 
+            -webkit-appearance: none; flex-grow: 1; height: 6px; border-radius: 3px;
+            background: linear-gradient(90deg, #5D6D7E, #F4F6F7, #A93226); /* 冷灰 -> 白 -> 热红 */
+            outline: none; cursor: pointer;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+            background: var(--bg-paper); border: 2px solid var(--ink-light);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        
+        /* 动态滑块颜色 */
+        .slider-thumb-neg::-webkit-slider-thumb { border-color: #5D6D7E; background: #5D6D7E; }
+        .slider-thumb-pos::-webkit-slider-thumb { border-color: var(--cinnabar); background: var(--cinnabar); }
+        .slider-thumb-mid::-webkit-slider-thumb { border-color: var(--bamboo); background: var(--bamboo); }
+
+        /* ========== 8. 按钮 (印章风格) ========== */
+        .btn-primary { 
+            background-color: var(--cinnabar); 
+            color: #fff; 
+            border: none; 
+            padding: 12px 35px; 
+            border-radius: 4px; 
+            font-size: 1rem; 
+            letter-spacing: 2px;
+            cursor: pointer; margin-top: 25px; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(168, 51, 51, 0.3);
+            font-family: 'Noto Serif SC', serif;
+            position: relative; overflow: hidden;
+        }
+        
+        .btn-primary:hover { 
+            background-color: #8B2A2A; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 15px rgba(168, 51, 51, 0.4);
+        }
+        
+        .btn-secondary { 
+            background-color: transparent; 
+            color: var(--ink-light); 
+            border: 1px solid var(--ink-light);
+            box-shadow: none;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover { 
+            background-color: rgba(0,0,0,0.05); 
+            color: var(--ink-black);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ========== 9. 结果展示区 (古籍排版) ========== */
+        .gu-yan-output {
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--ink-black);
+            margin: 40px 0;
+            font-family: 'Ma Shan Zheng', cursive; /* 结果用书法体 */
+            padding: 20px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .gu-yan-output::before { content: "“"; position: absolute; top: -10px; left: 10px; font-size: 4rem; color: rgba(0,0,0,0.1); font-family: sans-serif; }
+        .gu-yan-output::after { content: "”"; position: absolute; bottom: -40px; right: 10px; font-size: 4rem; color: rgba(0,0,0,0.1); font-family: sans-serif; }
+
+        .gu-ce-output {
+            font-size: 1.05rem;
+            line-height: 2;
+            color: var(--ink-light);
+            text-align: justify;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 8px;
+        }
+        .gu-ce-output strong { color: var(--cinnabar); }
+
+        /* ========== 10. 森林视图 (卡片化) ========== */
+        .forest-grid {
+            display: flex; flex-wrap: wrap; gap: 20px; 
+            padding: 10px; 
+            background: transparent; border: none;
+            max-height: 550px; overflow-y: auto;
+        }
+        
+        .tree-plot {
+            width: 140px; text-align: center; padding: 15px; 
+            border: 1px solid rgba(255,255,255,0.6); 
+            border-radius: 12px;
+            cursor: pointer; transition: all 0.3s;
+            background-color: rgba(255,255,255,0.5);
+            box-shadow: var(--shadow-card);
+        }
+        
+        .tree-plot:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255,255,255,0.9);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--bamboo);
+        }
+        
+        .tree-icon { font-size: 3rem; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); }
+
+        /* ========== 11. 日历视图 ========== */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-light); font-weight: bold; transition: color 0.2s; }
+        .calendar-header button:hover { color: var(--cinnabar); }
+        
+        .calendar-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+            background-color: transparent; border: none;
+            padding: 10px;
+        }
+        .day-name { text-align: center; padding: 10px 0; color: var(--ink-light); font-weight: 600; }
+        
+        .day-cell { 
+            background-color: rgba(255,255,255,0.5); 
+            min-height: 80px; padding: 10px;
+            border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);
+            position: relative; cursor: default;
+            transition: all 0.2s;
+        }
+        .day-cell:not(.empty-day):hover { background-color: #fff; transform: scale(1.05); z-index: 2; box-shadow: var(--shadow-card); }
+        .day-number { font-weight: 700; color: #999; position: absolute; top: 8px; right: 8px; font-size: 0.8rem; }
+        
+        .has-record { border: 1px solid var(--cinnabar); background-color: rgba(255,253,248,0.9); cursor: pointer !important; }
+        .has-record .day-number { color: var(--cinnabar); }
+        .record-summary { margin-top: 15px; font-size: 0.75rem; color: var(--bamboo); font-weight: 600; }
+
+        /* ========== 12. 模态框 (现代弹窗) ========== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(5px); 
+            background: rgba(0, 0, 0, 0.4); 
+        }
+        .modal-content {
+            background-color: #FFFEFA;
+            width: 600px; max-height: 85%; overflow-y: auto;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 40px;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-content h3 { color: var(--cinnabar); margin-bottom: 15px; border-bottom: 1px dashed var(--border-ink); padding-bottom: 10px; font-size: 1.4rem; }
+        .modal-guyan { font-size: 1.4rem; text-align: center; color: var(--ink-black); margin: 20px 0; font-family: 'Ma Shan Zheng', cursive; }
+        .modal-guce { font-size: 1rem; line-height: 1.8; color: var(--ink-light); }
+        .modal-info { font-size: 0.85rem; color: #888; margin-top: 10px; }
+        .water-btn-group { margin-top: 30px; text-align: center; }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body onload="initApp()">
+
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">古曰</div>
+            <div id="nav-home" class="nav-item active" onclick="switchView('home')">✒️ 记录心境</div>
+            <div id="nav-forest" class="nav-item" onclick="switchView('forest')">🌳 古曰森林</div>
+            <div id="nav-calendar" class="nav-item" onclick="switchView('calendar')">📅 日历回顾</div>
+            
+            <div class="user-info">
+                当前用户: <span id="current-username">访客</span><br>
+                <button onclick="loginLogout()" class="btn-primary" style="padding: 5px 10px; margin-top: 10px; font-size: 0.75rem; width: 100%;">切换/登录</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <div id="home-view" class="view active">
+                <h2>✒️ 记录心境</h2>
+                <div class="input-box">
+                    <p style="text-align: center; margin-bottom: 20px; color: var(--ink-light);">请通过滑动情绪和详细记录事件，开启您的治愈之旅。</p>
+                    
+                    <div class="emotion-controls">
+                        <p>心绪指数：<span id="mood-label">平静安稳 ☁️ (50)</span></p>
+                        <div class="slider-wrapper">
+                            <span>愁</span>
+                            <input type="range" min="1" max="100" value="50" id="emotion-range" class="slider-thumb-mid">
+                            <span>乐</span>
+                        </div>
+                    </div>
+
+                    <label for="user-input" style="display: block; font-weight: 600; margin-bottom: 10px; color: var(--ink-black);">详细事件记录</label>
+                    <textarea id="user-input" placeholder="今日所遇何事？烦请细细道来..."></textarea>
+
+                    <div style="text-align: center;">
+                        <button class="btn-primary" id="generate-btn" onclick="generateAndShowResult()">古曰一下</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-view" class="view">
+                <h2>📜 古言与古策</h2>
+                <div style="background-color: transparent; height: 100%; display: flex; flex-direction: column;">
+                    
+                    <div class="gu-yan-output" id="output-guyan"></div>
+
+                    <div class="gu-ce-output">
+                        <strong>【古策解析】</strong><br>
+                        <span id="output-guce"></span>
+                    </div>
+
+                    <div style="text-align: center; margin-top: auto; padding-top: 20px;">
+                        <button class="btn-primary" onclick="resetAndGoForest()">✔️ 记入心田 & 种树</button>
+                        <button class="btn-primary btn-secondary" onclick="switchView('home')">↩️ 修改描述</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="forest-view" class="view">
+                <h2>🌳 古曰森林</h2>
+                <p style="color: var(--ink-light); margin-bottom: 20px;">每记录一次心绪，古曰就会为您种下一颗映射当下情绪的树木。</p>
+                
+                <div class="forest-grid">
+                    </div>
+            </div>
+
+            <div id="calendar-view" class="view">
+                <h2>📅 心绪足迹</h2>
+                <div class="calendar-header">
+                    <button onclick="changeMonth(-1)">&#9664; 上月</button>
+                    <h3 id="current-month-display" style="font-size: 1.5rem; color: var(--ink-black);"></h3>
+                    <button onclick="changeMonth(1)">下月 &#9654;</button>
+                </div>
+                <div class="calendar-grid">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="review-modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modal-title"></h3>
+            <div class="modal-info">
+                日期: <span id="modal-date"></span> | 情绪: <span id="modal-type"></span> (<span id="modal-score"></span>)
+            </div>
+            <p style="margin-top: 15px; color: var(--ink-black); line-height: 1.6;"><strong>事件记录:</strong> <span id="modal-event"></span></p>
+            
+            <div style="border-top: 1px dashed var(--border-ink); margin: 20px 0;"></div>
+            
+            <div class="modal-guyan" id="modal-guyan"></div>
+            
+            <div class="modal-guce" id="modal-guce"></div>
+            
+            <div class="water-btn-group">
+                <button class="btn-primary" id="water-btn" onclick="waterTree()">💦 浇水 (强化/转化)</button>
+                <button class="btn-secondary btn-primary" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心变量
+        let userRecords = [];
+        const recordsKey = 'guyueRecords_'; 
+        let currentUserId = 'guest'; 
+        
+        const views = document.querySelectorAll('.view');
+        const navItems = document.querySelectorAll('.nav-item');
+        const emotionRange = document.getElementById('emotion-range');
+        const moodLabel = document.getElementById('mood-label');
+        const userInput = document.getElementById('user-input');
+        const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
+        
+        let currentRecordIndex = -1; 
+        let currentCalendarDate = new Date();
+        currentCalendarDate.setDate(1); 
+
+        // ========== A. 用户登录/数据管理 ==========
+
+        function loginLogout() {
+            const newUsername = prompt("请输入您的用户名进行登录/切换（例如: user1, guest, 等）。", currentUserId);
+            if (newUsername && newUsername.trim() !== currentUserId) {
+                currentUserId = newUsername.trim();
+                localStorage.setItem('currentUserId', currentUserId);
+                document.getElementById('current-username').innerText = currentUserId;
+                loadRecords(); 
+                alert(`已切换到用户：${currentUserId}。数据已更新。`);
+                switchView('home');
+            }
+        }
+
+        function loadRecords() {
+            const savedRecords = localStorage.getItem(recordsKey + currentUserId);
+            userRecords = savedRecords ? JSON.parse(savedRecords) : [];
+            userRecords.sort((a, b) => new Date(a.date) - new Date(b.date)); 
+        }
+
+        function saveRecords() {
+            localStorage.setItem(recordsKey + currentUserId, JSON.stringify(userRecords));
+        }
+        
+        function initApp() {
+            const storedUserId = localStorage.getItem('currentUserId');
+            if (storedUserId) {
+                currentUserId = storedUserId;
+            }
+            document.getElementById('current-username').innerText = currentUserId;
+            loadRecords();
+            emotionRange.dispatchEvent(new Event('input')); 
+        }
+        
+        // ========== B. 界面和视图切换逻辑 ==========
+        
+        emotionRange.addEventListener('input', function() {
+            const val = parseInt(this.value);
+            let label = '';
+            let icon = '';
+            
+            this.className = ''; 
+            
+            if (val < 30) { 
+                label = '极度消极'; icon = '🌧️';
+                this.classList.add('slider-thumb-neg');
+            } else if (val > 70) { 
+                label = '积极愉悦'; icon = '☀️';
+                this.classList.add('slider-thumb-pos');
+            } else { 
+                label = '平静安稳'; icon = '☁️';
+                this.classList.add('slider-thumb-mid');
+            }
+            
+            moodLabel.innerText = `${label} ${icon} (${val})`;
+        });
+        
+        function switchView(viewId) {
+            views.forEach(view => view.classList.remove('active'));
+            navItems.forEach(item => item.classList.remove('active'));
+
+            const targetView = document.getElementById(`${viewId}-view`);
+            targetView.classList.add('active');
+            
+            const targetNav = document.getElementById(`nav-${viewId}`);
+            if (targetNav) targetNav.classList.add('active');
+            
+            if (viewId === 'forest') {
+                renderForest();
+            } else if (viewId === 'calendar') {
+                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            }
+        }
+
+        // ========== C. 日历回顾功能实现 ==========
+        
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+        }
+
+        function renderCalendar(year, month) {
+            const grid = document.querySelector('#calendar-view .calendar-grid');
+            const display = document.getElementById('current-month-display');
+            grid.innerHTML = ''; 
+
+            display.innerText = `${year}年 ${month + 1}月`;
+            
+            const firstDay = new Date(year, month, 1).getDay(); 
+            const daysInMonth = getDaysInMonth(year, month);
+
+            WEEK_DAYS.forEach(day => {
+                grid.innerHTML += `<div class="day-name">${day}</div>`;
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="day-cell empty-day"></div>`;
+            }
+
+            const recordsByDate = userRecords.reduce((acc, record, index) => {
+                const dateKey = record.date; 
+                if (!acc[dateKey]) {
+                    acc[dateKey] = [];
+                }
+                acc[dateKey].push({ ...record, index });
+                return acc;
+            }, {});
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+                const dayRecords = recordsByDate[dateKey] || [];
+                const hasRecord = dayRecords.length > 0;
+                
+                let cellHtml = `<div class="day-number">${day}</div>`;
+                if (hasRecord) {
+                    const firstRecord = dayRecords[0];
+                    cellHtml += `<div class="record-summary">${firstRecord.type.substring(0, 2)} ${dayRecords.length}条</div>`;
+                }
+
+                const dayCell = document.createElement('div');
+                dayCell.className = `day-cell ${hasRecord ? 'has-record' : ''}`;
+                dayCell.innerHTML = cellHtml;
+
+                if (hasRecord) {
+                    dayCell.onclick = () => {
+                        showReviewModal(dayRecords[0].index); 
+                    };
+                }
+
+                grid.appendChild(dayCell);
+            }
+        }
+
+        // ========== D. 浇水和回顾功能实现 ==========
+        
+        function renderForest() {
+            const forestGrid = document.querySelector('#forest-view .forest-grid');
+            forestGrid.innerHTML = ''; 
+
+            userRecords.forEach((record, index) => {
+                let icon = '';
+                let color = '';
+                
+                if (record.type.includes('积极')) {
+                    icon = record.watered ? '🌲' : '🌳'; 
+                    color = record.watered ? '#2E8B57' : 'var(--bamboo)';
+                } else if (record.type.includes('消极')) {
+                    icon = record.watered ? '🌱' : '🍂'; 
+                    color = record.watered ? '#6495ED' : '#9F3A3A';
+                } else {
+                    icon = '💧';
+                    color = '#6495ED';
+                }
+
+                const plot = document.createElement('div');
+                plot.className = 'tree-plot';
+                plot.onclick = () => showReviewModal(index); 
+                plot.innerHTML = `
+                    <div class="tree-icon" style="color: ${color};">${icon}</div>
+                    <p style="font-weight:bold;">${record.type.substring(0, 4)}</p>
+                    <p style="font-size:0.8rem; color:#888;">${record.date.substring(5)}</p>
+                    <p style="font-size:0.8rem; color:#aaa;">${record.watered ? '(已浇)' : ''}</p>
+                `;
+                forestGrid.appendChild(plot);
+            });
+            
+            const waitingPlot = document.createElement('div');
+            waitingPlot.className = 'tree-plot';
+            waitingPlot.style.border = '2px dashed var(--ink-light)';
+            waitingPlot.style.backgroundColor = 'transparent';
+            waitingPlot.innerHTML = `<div class="tree-icon" style="color: var(--ink-light); font-size:2rem; margin-top:10px;">➕</div><p>待记录</p>`;
+            forestGrid.appendChild(waitingPlot);
+        }
+
+        function showReviewModal(index) {
+            const record = userRecords[index];
+            currentRecordIndex = index;
+            
+            document.getElementById('modal-title').innerText = `回顾心绪 (${record.type})`;
+            document.getElementById('modal-date').innerText = record.date;
+            document.getElementById('modal-type').innerText = record.type;
+            document.getElementById('modal-score').innerText = record.score;
+            document.getElementById('modal-event').innerText = record.event;
+            document.getElementById('modal-guyan').innerText = record.guyan;
+            document.getElementById('modal-guce').innerText = record.guce;
+            
+            const waterBtn = document.getElementById('water-btn');
+            waterBtn.innerText = record.watered ? "已浇水 (不再重复)" : "💦 浇水 (强化/转化)";
+            waterBtn.disabled = record.watered;
+            
+            document.getElementById('review-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('review-modal').style.display = 'none';
+            currentRecordIndex = -1;
+        }
+        
+        function waterTree() {
+            if (currentRecordIndex === -1 || userRecords[currentRecordIndex].watered) return;
+            
+            userRecords[currentRecordIndex].watered = true; 
+            saveRecords(); 
+
+            document.getElementById('water-btn').innerText = "已浇水 (不再重复)";
+            document.getElementById('water-btn').disabled = true;
+
+            const type = userRecords[currentRecordIndex].type;
+            let message = '';
+            if (type.includes('积极')) {
+                message = "👏 成功强化！这颗积极树吸收了古策的养分，变得更茂盛！";
+            } else if (type.includes('消极')) {
+                message = "✨ 成功转化！消极心绪已被古策治愈，树木开始向着希望生长！";
+            } else {
+                message = "💧 浇水完成。";
+            }
+            alert(message);
+            
+            setTimeout(() => {
+                closeModal();
+                if (document.getElementById('forest-view').classList.contains('active')) renderForest();
+                if (document.getElementById('calendar-view').classList.contains('active')) renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            }, 500);
+        }
+
+        // ========== E. DeepSeek AI 调用 (通过后端代理) ==========
+        
+        async function generateAndShowResult() {
+            const content = userInput.value.trim();
+            const emotionScore = emotionRange.value;
+            const generateButton = document.getElementById('generate-btn');
+            
+            if (content.length < 5) {
+                alert("请详细描述事件，古曰需要更多信息。");
+                return;
+            }
+            
+            generateButton.disabled = true;
+            generateButton.innerText = "古人沉思中...";
+
+            const backendUrl = '/api/generate-guyue'; 
+
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: content,
+                        emotion_score: emotionScore 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('output-guyan').innerText = data.guyan || "AI未能生成古言。";
+                    document.getElementById('output-guce').innerText = data.guce || "AI未能生成古策。";
+                    switchView('result');
+                } else {
+                    alert(`AI 调用失败: ${data.error}。\n请确认您已运行 'python app.py' 且后端无报错。`);
+                }
+            } catch (error) {
+                alert('网络请求失败。\n1. 请检查您的后端服务器是否已启动 (python app.py)。\n2. 确保访问地址是 http://localhost:5000');
+                console.error('Fetch Error:', error);
+            } finally {
+                generateButton.disabled = false;
+                generateButton.innerText = "古曰一下";
+            }
+        }
+        
+        function resetAndGoForest() {
+            const emotionScore = parseInt(emotionRange.value);
+            const emotionType = emotionScore > 70 ? '积极愉悦' : (emotionScore < 30 ? '极度消极' : '平静安稳');
+            
+            const today = new Date();
+            const dateString = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+
+            const newRecord = {
+                date: dateString,
+                event: userInput.value.trim(),
+                score: emotionScore,
+                type: emotionType,
+                guyan: document.getElementById('output-guyan').innerText,
+                guce: document.getElementById('output-guce').innerText,
+                watered: false 
+            };
+            
+            userRecords.push(newRecord);
+            saveRecords(); 
+
+            alert(`已将记录存入古曰，并种下一颗 ${emotionType} 树。`);
+            
+            userInput.value = "";
+            emotionRange.value = 50;
+            emotionRange.dispatchEvent(new Event('input'));
+
+            switchView('forest');
+        }
+    </script>
+</body>
+</html>
