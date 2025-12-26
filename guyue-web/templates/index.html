@@ -152,6 +152,7 @@
         
         /* 修改 view 类，允许其在内部溢出时滚动 */
        /* 修改后的 View 样式 */
+      /* 约第 135 行开始替换 */
         .view {
             position: absolute;
             top: 0;
@@ -159,21 +160,28 @@
             width: 100%;
             height: 100%;
             padding: 40px;
-            box-sizing: border-box; /* 确保 padding 不撑大容器 */
+            box-sizing: border-box;
+
+            /* 强制重置：默认状态下不显示、无背景、无边框 */
+            display: none !important; 
+            background: transparent;
+            border: none;
+            box-shadow: none;
     
-            display: none;          /* 【关键】默认完全隐藏，不占空间 */
             flex-direction: column;
-    
-            overflow-y: auto;       /* 【关键】允许内部滚动，解决看不到按钮的问题 */
-            background: var(--bg-paper);
-            transition: opacity 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        /* 修改后的激活样式 */
+
+        /* 只有活跃的页面才允许拥有宣纸背景和显示 */
         .view.active {
-            display: flex;         /* 【关键】只有活跃页面才显示 */
-            opacity: 1;
-            pointer-events: auto;
+            display: flex !important;
+            background: var(--bg-paper) !important; /* 只有激活页才有宣纸感 */
+            opacity: 1 !important;
             z-index: 10;
+            pointer-events: auto;
+            /* 恢复边框或装饰（如有） */
+            border: 1px solid rgba(0,0,0,0.05); 
         }
         /* 针对结果页面的容器优化 */
         #result-view {
@@ -595,19 +603,17 @@
         });
         
         function switchView(viewId) {
-            views.forEach(view => view.classList.remove('active'));
-            navItems.forEach(item => item.classList.remove('active'));
+            // 1. 移除所有页面的 active 类
+            document.querySelectorAll('.view').forEach(v => {
+                v.classList.remove('active');
+            });
 
-            const targetView = document.getElementById(`${viewId}-view`);
-            targetView.classList.add('active');
-            
-            const targetNav = document.getElementById(`nav-${viewId}`);
-            if (targetNav) targetNav.classList.add('active');
-            
-            if (viewId === 'forest') {
-                renderForest();
-            } else if (viewId === 'calendar') {
-                renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            // 2. 给目标页面添加 active 类
+            const target = document.getElementById(viewId + '-view');
+            if (target) {
+                target.classList.add('active');
+                // 切换页面后自动回到顶部
+                target.scrollTop = 0;
             }
         }
 
@@ -874,6 +880,7 @@
 </body>
 
 </html>
+
 
 
 
