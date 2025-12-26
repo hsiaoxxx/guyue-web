@@ -687,53 +687,48 @@
                 grid.appendChild(dayCell);
             }
         }
-
+        function drawRefinedTree(ctx, x, y) {
+            ctx.font = "40px serif";
+            ctx.textAlign = "center";
+            ctx.fillText('🌸', x, y); // 暂时用花朵代表升华之树
+        }
         // ========== D. 浇水和回顾功能实现 ==========
         
         function renderForest() {
             const forestGrid = document.querySelector('#forest-view .forest-grid');
             forestGrid.innerHTML = ''; 
 
-            userRecords.forEach((record, index) => {
-                // 1. 计算坐标 (假设你已经有了计算 x, y 的逻辑，比如根据日期)
-                // 这里使用你原有的坐标逻辑，示例：
-                const x = 50 + (index % 10) * (canvas.width / 11);
-                const y = 80 + Math.floor(index / 10) * 100;
-            
-                let icon = '';
-                let color = '';
-            
-                // 2. 判断类型并设置样式
-                if (record.type === '心境升华') {
-                    // 升华之树：最特殊的待遇
-                    ctx.fillStyle = 'var(--cinnabar)'; // 朱砂红
-                    drawRefinedTree(ctx, x, y);        // 调用特殊的画树函数
-                    return; // 跳过后面的通用逻辑
-                } 
-                
-                // 通用逻辑：积极、沉闷（原消极）、平静
-                if (record.type.includes('积极')) {
-                    icon = record.watered ? '🌲' : '🌳'; 
-                    color = record.watered ? '#2E8B57' : 'var(--bamboo)';
-                } else if (record.type.includes('沉闷') || record.type.includes('不悦') || record.type.includes('消极')) {
-                    icon = record.watered ? '🌱' : '🍂'; 
-                    color = record.watered ? '#6495ED' : '#9F3A3A';
-                } else {
-                    // 平静安稳或其他
-                    icon = record.watered ? '🌿' : '🍃';
-                    color = '#B8860B'; // 赭石色
-                }
+            // 清空并重新绘制森林
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // 3. 执行绘制 (Canvas 绘制文字/图标)
-                ctx.fillStyle = color;
-                ctx.font = "40px serif"; // 设置图标大小
-                ctx.textAlign = "center";
-                ctx.fillText(icon, x, y); 
+            userRecords.forEach((record, index) => {
+                // 计算坐标
+                const x = 50 + (index % 8) * 70;
+                const y = 80 + Math.floor(index / 8) * 100;
+    
+                if (record.type === '心境升华') {
+                    // 如果定义了 drawRefinedTree 就调用，否则画个五角星
+                    if (typeof drawRefinedTree === 'function') {
+                        drawRefinedTree(ctx, x, y);
+                    } else {
+                        ctx.font = "40px serif";
+                        ctx.fillText('⭐', x, y);
+                    }
+                } else {
+                    // 普通树木逻辑
+                    let icon = '🌳';
+                    if (record.type.includes('积极')) icon = record.watered ? '🌲' : '🌳';
+                    else if (record.type.includes('沉闷') || record.type.includes('不悦') || record.type.includes('消极')) {
+                        icon = record.watered ? '🌱' : '🍂';
+                    } else {
+                        icon = '🍃';
+                    }
                 
-                // 如果你有自定义的画树函数 drawNormalTree，也可以这样：
-                // ctx.fillStyle = color;
-                // drawNormalTree(ctx, x, y);
-            });
+                    ctx.font = "40px serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText(icon, x, y);
+                }
+            }); // <--- 确保这里有 });
 
                 const plot = document.createElement('div');
                 plot.className = 'tree-plot';
@@ -955,6 +950,7 @@
 </body>
 
 </html>
+
 
 
 
