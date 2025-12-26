@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, render_template
 
 # 确保在生产环境读取环境变量
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
+DEEPSEEK_ENDPOINT = "https://api.deepseek.com"
 
 # 指定模板文件夹和静态文件夹位置
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -47,3 +47,4 @@ def generate_guyue():
 if __name__ == '__main__':
 
     app.run(debug=True)
+
