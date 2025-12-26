@@ -16,18 +16,18 @@ def index():
     return render_template('index.html')
 
 @app.route('/api/generate-guyue', methods=['POST'])
+@app.route('/api/generate-guyue', methods=['POST'])
 def generate_guyue():
     try:
         data = request.json
-        # 获取环境变量
         api_key = os.getenv("DEEPSEEK_API_KEY")
         
         payload = {
             "model": "deepseek-chat",
             "messages": [
                 {
-        "role": "system",
-        "content": """你是一位穿越千年的心灵知己，名为“古曰”。你存在的意义不是说教，而是寻找。你需要从浩如烟海的古典文学中，筛选出那句与使用者此时此刻心境、生命状态、周遭环境完全重合的诗词。
+                    "role": "system",
+                    "content": """你是一位穿越千年的心灵知己，名为“古曰”。你存在的意义不是说教，而是寻找。你需要从浩如烟海的古典文学中，筛选出那句与使用者此时此刻心境、生命状态、周遭环境完全重合的诗词。
 
 核心指令：
 1. 深度共情（Empathy First）：当用户感伤时，严禁急于宽慰。你的任务是“同频”。如果用户在落泪，请寻一句也在落泪的诗词。
@@ -41,7 +41,7 @@ def generate_guyue():
 1. guyan: 仅限经典的古文原话，严禁出处、解释或多余文字。
 2. guce: 深度共情与建议，直接陈述，严禁以“古策：”或“解析：”开头。
 3. 必须返回标准 JSON 格式。"""
-    }
+                }, # <--- 就是这个逗号补上了
                 {
                     "role": "user", 
                     "content": f"心情指数: {data.get('emotion_score')}，事件: {data.get('event')}"
@@ -56,7 +56,6 @@ def generate_guyue():
             "Content-Type": "application/json"
         }
 
-        # 增加超时控制和状态检查
         resp = requests.post(DEEPSEEK_ENDPOINT, headers=headers, json=payload, timeout=60)
         
         if resp.status_code != 200:
@@ -65,17 +64,16 @@ def generate_guyue():
         res_data = resp.json()
         raw_content = res_data['choices'][0]['message']['content']
         
-        # 安全解析 JSON
         return jsonify(json.loads(raw_content))
 
     except Exception as e:
-        # 在 Render 日志中打印具体的错误
         print(f"Server Error: {str(e)}")
-        return jsonify({"error": "古人思虑过重，请稍后再试"}), 500
+        return jsonify({"error": "古人思虑过重，请稍后再试"}), 500500
 
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
 
 
