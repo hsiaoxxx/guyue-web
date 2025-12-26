@@ -17,35 +17,55 @@ def index():
 
 @app.route('/api/generate-guyue', methods=['POST'])
 def generate_guyue():
-    # ... (这里保持您之前的 API 逻辑不变) ...
-    # 只需要复制之前的 generate_guyue 函数内容即可
-    if not DEEPSEEK_API_KEY:
-        return jsonify({"error": "API Key 未配置"}), 500
-    
     try:
         data = request.json
-        # ... (后续逻辑保持不变) ...
-        # ... 为节省篇幅省略，请确保完整复制之前的逻辑 ...
+        # 获取环境变量
+        api_key = os.getenv("DEEPSEEK_API_KEY")
         
-        # 简单示例，确保逻辑完整:
         payload = {
             "model": "deepseek-chat",
             "messages": [
-                {"role": "system", "content": "你是一位博学、温和、富有智慧的古言导师。你既通晓古代经典，又理解现代人的情绪与困境，善于用古今结合的智慧，为用户提供情感共鸣、认知启发与现实建议。你的语言风格应兼具文雅与亲切，避免说教，注重共情。你的任务是根据用户反馈的现代事件，引用一句恰当的古言进行共情治愈，并生成一段结合古人智慧的'古策'来指导用户解决现实问题。你必须且只返回一个包含 'guyan' 和 'guce' 两个键的 JSON 对象。"},
-                {"role": "user", "content": f"用户心情... {data.get('emotion_score')}... {data.get('event')}"}
+                {
+                    "role": "system", 
+                    "content": "你是一位博学、温和、富有智慧的古言导师。你既通晓古代经典，又理解现代人的情绪与困境，善于用古今结合的智慧，为用户提供情感共鸣、认知启发与现实建议。你的语言风格应兼具文雅与亲切，避免说教，注重共情。你的任务是根据用户反馈的现代事件，引用一句恰当的古言进行共情治愈，并生成一段结合古人智慧的'古策'来指导用户解决现实问题。请严格按要求返回 JSON：\n"
+                               "1. guyan: 仅限经典的古文原话，严禁出处、解释或多余文字。\n"
+                               "2. guce: 深度共情与建议，直接陈述，严禁以'古策：'或'解析：'开头。\n"
+                               "必须返回标准 JSON 格式。"
+                },
+                {
+                    "role": "user", 
+                    "content": f"心情指数: {data.get('emotion_score')}，事件: {data.get('event')}"
+                }
             ],
             "temperature": 0.7,
             "response_format": {"type": "json_object"}
         }
-        headers = {"Authorization": f"Bearer {DEEPSEEK_API_KEY}", "Content-Type": "application/json"}
-        resp = requests.post(DEEPSEEK_ENDPOINT, headers=headers, json=payload)
-        return jsonify(json.loads(resp.json()['choices'][0]['message']['content']))
+        
+        headers = {
+            "Authorization": f"Bearer {api_key}", 
+            "Content-Type": "application/json"
+        }
+
+        # 增加超时控制和状态检查
+        resp = requests.post(DEEPSEEK_ENDPOINT, headers=headers, json=payload, timeout=60)
+        
+        if resp.status_code != 200:
+            return jsonify({"error": f"API 返回异常: {resp.status_code}"}), 500
+
+        res_data = resp.json()
+        raw_content = res_data['choices'][0]['message']['content']
+        
+        # 安全解析 JSON
+        return jsonify(json.loads(raw_content))
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # 在 Render 日志中打印具体的错误
+        print(f"Server Error: {str(e)}")
+        return jsonify({"error": "古人思虑过重，请稍后再试"}), 500
 
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
 
