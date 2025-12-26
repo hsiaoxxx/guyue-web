@@ -378,6 +378,18 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+        /* 手机端适配代码 */
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; width: 100vw; height: 100vh; max-height: none; border-radius: 0; }
+            .sidebar { width: 100%; height: auto; padding: 10px 0; flex-direction: row; justify-content: space-around; border-right: none; border-bottom: 1px solid var(--border-ink); }
+            .logo, .user-info { display: none; }
+            .content-area { padding: 15px; overflow-y: auto; flex: 1; }
+            .view { padding: 15px; position: relative; opacity: 1; display: none; transform: none; }
+            .view.active { display: flex; }
+            .input-box { padding: 20px; }
+            .gu-yan-output { font-size: 1.4rem; margin: 20px 0; }
+            .gu-yan-output::before, .gu-yan-output::after { font-size: 2rem; }
+        }
     </style>
 </head>
 <body onload="initApp()">
@@ -473,7 +485,11 @@
             <div class="modal-guyan" id="modal-guyan"></div>
             
             <div class="modal-guce" id="modal-guce"></div>
-            
+            <div id="record-pager" style="display:none; align-items:center; justify-content:center; gap: 15px; margin: 15px 0; padding: 10px; border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;">
+                <button onclick="changeRecord(-1)" style="cursor:pointer; background:none; border:1px solid #ccc; padding:2px 10px;">←</button>
+                <span id="pager-info" style="font-size:0.9rem; color:#666;">1 / 1</span>
+                <button onclick="changeRecord(1)" style="cursor:pointer; background:none; border:1px solid #ccc; padding:2px 10px;">→</button>
+            </div>
             <div class="water-btn-group">
                 <button class="btn-primary" id="water-btn" onclick="waterTree()">💦 浇水 (强化/转化)</button>
                 <button class="btn-secondary btn-primary" onclick="closeModal()">关闭</button>
@@ -804,3 +820,4 @@
 </body>
 
 </html>
+
