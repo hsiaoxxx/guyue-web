@@ -511,6 +511,7 @@
         const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
         
         let currentRecordIndex = -1; 
+        let currentDayRecords = []; // 【新增】用于存储当前弹窗正在展示的那一天的记录列表
         let currentCalendarDate = new Date();
         currentCalendarDate.setDate(1); 
 
@@ -693,24 +694,55 @@
         }
 
         function showReviewModal(index) {
-            const record = userRecords[index];
-            currentRecordIndex = index;
+                const targetRecord = userRecords[index]; // 用户点击的那条记录
+    
+                // 1. 核心逻辑：从所有记录中滤出日期相同的所有记录
+                currentDayRecords = userRecords.filter(r => r.date === targetRecord.date);
+    
+                // 2. 找到当前点击的这条在当天记录中的位置（索引）
+                currentRecordIndex = currentDayRecords.findIndex(r => 
+                    r.event === targetRecord.event && r.guyan === targetRecord.guyan
+                );
+    
+                // 3. 调用渲染函数（下一步定义）
+                renderModalContent();
+    
+                document.getElementById('review-modal').style.display = 'flex';
+        }
+            // 新增：渲染弹窗内容的函数
+        function renderModalContent() {
+                const record = currentDayRecords[currentRecordIndex];
+    
+                // 填充弹窗文字内容
+                document.getElementById('modal-title').innerText = `回顾心绪 (${record.type})`;
+                document.getElementById('modal-date').innerText = record.date;
+                document.getElementById('modal-type').innerText = record.type;
+                document.getElementById('modal-score').innerText = record.score;
+                document.getElementById('modal-event').innerText = record.event;
+                document.getElementById('modal-guyan').innerText = record.guyan;
+                document.getElementById('modal-guce').innerText = record.guce;
+    
+                // 处理翻页控件显示逻辑
+                const pager = document.getElementById('record-pager');
+                if (currentDayRecords.length > 1) {
+                    pager.style.display = 'flex'; 
+                    document.getElementById('pager-info').innerText = `${currentRecordIndex + 1} / ${currentDayRecords.length}`;
+                } else {
+                    pager.style.display = 'none'; 
+                }
             
-            document.getElementById('modal-title').innerText = `回顾心绪 (${record.type})`;
-            document.getElementById('modal-date').innerText = record.date;
-            document.getElementById('modal-type').innerText = record.type;
-            document.getElementById('modal-score').innerText = record.score;
-            document.getElementById('modal-event').innerText = record.event;
-            document.getElementById('modal-guyan').innerText = record.guyan;
-            document.getElementById('modal-guce').innerText = record.guce;
-            
-            const waterBtn = document.getElementById('water-btn');
-            waterBtn.innerText = record.watered ? "已浇水 (不再重复)" : "💦 浇水 (强化/转化)";
-            waterBtn.disabled = record.watered;
-            
-            document.getElementById('review-modal').style.display = 'flex';
+                // 更新浇水按钮状态
+                const waterBtn = document.getElementById('water-btn');
+                waterBtn.innerText = record.watered ? "已浇水 (不再重复)" : "💦 浇水 (强化/转化)";
+                waterBtn.disabled = record.watered;
         }
 
+            // 新增：翻页切换函数
+        function changeRecord(step) {
+                // 循环切换索引
+                currentRecordIndex = (currentRecordIndex + step + currentDayRecords.length) % currentDayRecords.length;
+                renderModalContent();
+        }
         function closeModal() {
             document.getElementById('review-modal').style.display = 'none';
             currentRecordIndex = -1;
@@ -820,4 +852,5 @@
 </body>
 
 </html>
+
 
