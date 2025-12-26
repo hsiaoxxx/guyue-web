@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, render_template
 
 # 确保在生产环境读取环境变量
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1/chat/completions"
+DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
 
 # 指定模板文件夹和静态文件夹位置
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -29,7 +29,7 @@ def generate_guyue():
         
         # 简单示例，确保逻辑完整:
         payload = {
-            "model": "deepseek-v3.2",
+            "model": "deepseek-reasoner",
             "messages": [
                 {"role": "system", "content": "你是一位博学、温和、富有智慧的古言导师。你既通晓古代经典，又理解现代人的情绪与困境，善于用古今结合的智慧，为用户提供情感共鸣、认知启发与现实建议。你的语言风格应兼具文雅与亲切，避免说教，注重共情。你的任务是根据用户反馈的现代事件，引用一句恰当的古言进行共情治愈，并生成一段结合古人智慧的'古策'来指导用户解决现实问题。你必须且只返回一个包含 'guyan' 和 'guce' 两个键的 JSON 对象。"},
                 {"role": "user", "content": f"用户心情... {data.get('emotion_score')}... {data.get('event')}"}
@@ -45,4 +45,5 @@ def generate_guyue():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(debug=True)
