@@ -150,27 +150,35 @@
             background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiIG9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+') repeat; /* 极淡的噪点纹理增加纸张感 */
         }
         
+        /* 修改 view 类，允许其在内部溢出时滚动 */
         .view { 
             width: 100%; height: 100%; 
             position: absolute; top: 0; left: 0; padding: 50px;
             opacity: 0; transform: translateY(10px); pointer-events: none;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column;
+            overflow-y: auto; /* 核心修改：允许垂直滚动 */
+        }
+
+        /* 针对结果页面的容器优化 */
+        #result-view {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* 从顶部开始排列 */
         }
         
-        .view.active { 
-            opacity: 1; transform: translateY(0); pointer-events: auto; 
-            position: relative;
+        /* 确保结果展示区不会无限撑大 */
+        .gu-ce-output {
+            flex-shrink: 0; /* 防止内容被压缩 */
+            margin-bottom: 20px;
+            max-height: none; /* 移除高度限制，依靠父容器滚动 */
         }
-        
-        .view h2 { 
-            font-size: 1.8rem; 
-            margin-bottom: 30px; 
-            font-weight: 600;
-            color: var(--ink-black);
-            border-left: 5px solid var(--cinnabar);
-            padding-left: 15px;
-            line-height: 1.2;
+
+        /* 确保按钮组有足够的底部间距 */
+        .result-btn-group {
+            margin-top: auto; 
+            padding: 30px 0 50px 0; /* 增加底部 Padding，确保滚动到底部能看到按钮 */
+            text-align: center;
         }
 
         /* ========== 6. 输入区域与表单 ========== */
@@ -434,8 +442,7 @@
 
             <div id="result-view" class="view">
                 <h2>📜 古言与古策</h2>
-                <div style="background-color: transparent; height: 100%; display: flex; flex-direction: column;">
-                    
+                <div class="result-scroll-content">
                     <div class="gu-yan-output" id="output-guyan"></div>
 
                     <div class="gu-ce-output">
@@ -443,7 +450,7 @@
                         <span id="output-guce"></span>
                     </div>
 
-                    <div style="text-align: center; margin-top: auto; padding-top: 20px;">
+                    <div class="result-btn-group">
                         <button class="btn-primary" onclick="resetAndGoForest()">✔️ 记入心田 & 种树</button>
                         <button class="btn-primary btn-secondary" onclick="switchView('home')">↩️ 修改描述</button>
                     </div>
@@ -852,5 +859,6 @@
 </body>
 
 </html>
+
 
 
