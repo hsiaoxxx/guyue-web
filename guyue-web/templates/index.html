@@ -588,14 +588,21 @@
             
             this.className = ''; 
             
-            if (val < 30) { 
-                label = '极度消极'; icon = '🌧️';
+            // 修改后的措辞与判定逻辑
+            if (val <= 20) { 
+                label = '心情不悦'; icon = '🌪️'; // 特别低时
                 this.classList.add('slider-thumb-neg');
-            } else if (val > 70) { 
-                label = '积极愉悦'; icon = '☀️';
+            } else if (val < 45) { 
+                label = '心情沉闷'; icon = '🌧️'; // 低于中间值，但不至于极度
+                this.classList.add('slider-thumb-neg');
+            } else if (val > 80) { 
+                label = '欣喜怡然'; icon = '☀️'; // 很高
+                this.classList.add('slider-thumb-pos');
+            } else if (val > 60) {
+                label = '积极愉悦'; icon = '🌤️'; // 较高
                 this.classList.add('slider-thumb-pos');
             } else { 
-                label = '平静安稳'; icon = '☁️';
+                label = '平静安稳'; icon = '☁️'; // 中间地带
                 this.classList.add('slider-thumb-mid');
             }
             
@@ -881,6 +888,7 @@
 </body>
 
 </html>
+
 
 
 
