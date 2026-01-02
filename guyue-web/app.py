@@ -47,7 +47,7 @@ def generate_guyue():
                     "content": f"心情指数: {data.get('emotion_score')}，事件: {data.get('event')}"
                 }
             ],
-            "temperature": 0.7,
+            "temperature": 1.2,
             "response_format": {"type": "json_object"}
         }
         
@@ -73,6 +73,7 @@ def generate_guyue():
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
 
 
